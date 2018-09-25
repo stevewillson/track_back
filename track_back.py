@@ -28,6 +28,8 @@ current_time can also be provided to the file
 #Import Libraries
 import argparse
 
+import datetime
+
 #Define Argparse,
 parser = argparse.ArgumentParser()
 
@@ -42,9 +44,24 @@ host_ip_addr = args.host_ip_addr
 
 # change this to a time object
 back_time = args.back_time
-current_time = args.current_time
+
+# parse the current time input, should go down to the minute
+# 2018-09-25-0800
+# YYYY-MM-DD-TTTT
+#current_time = args.current_time
+
+# for now, just use the current time
+current_time = datetime.datetime.now()
 
 # if current_time is not set, use NOW
+
+# take back_time in the form
+# 2h, 2d, 2m 2h20m... etc
+
+#split the time on days, hours, minutes
+
+
+back_time = timedelta()
 
 time_window = current_time - back_time
 
@@ -61,7 +78,7 @@ show a summary of the connections to host_ip_addr over the time period time_wind
 # ELASTICSEARCH retrieve results
 # DESTINATION_IP: host_ip_addr
 # TIME PERIOD: current_time - time_window
-# GROUP BY: destination_port - summarize views
+# GROUP BY: destination_port -> summarize views
 
 """ """
 uri = "elasticsearch,9200"
@@ -91,6 +108,8 @@ allow user to choose a destination port of interest, now execute another query, 
 
 # SELECT A PORT
 
+port_of_interest = input('Input a port to search')
+
 # prompt the user to choose a port to investigate over TIME_PERIOD
 
 # ELASTICSEARCH retrieve results
@@ -99,6 +118,26 @@ allow user to choose a destination port of interest, now execute another query, 
 # TIME PERIOD: current_time - time_window
 # Display by: SOURCE_IP, TIME, SESSION_SIZE, SESSION_LENGTH?
 
+""" """
+uri = "elasticsearch,9200"
+{
+    "query": {
+        "filtered" : {
+            "query" : {
+                "match_all" : {}
+            },
+            "filter" : {
+                "destination_ip" : host_ip_addr
+                "destination_port": port_of_interest
+                "event_type" : log_to_search
+                "time_period": current_time - back_time
+            }
+        }
+    }
+}  
+response = requests.get(uri, data=query)
+results = json.loads(response.text)
+
 '''
 PROMPT allow the user to choose a specific session,
 PROMPT for a new back_time
@@ -106,5 +145,28 @@ set that SOURCE_IP from the session as the DESTINATION_IP
 set the session's time to the current_time
 '''
 
+session = input('Input an ip address to track')
+
+""" """
+uri = "elasticsearch,9200"
+{
+    "query": {
+        "filtered" : {
+            "query" : {
+                "match_all" : {}
+            },
+            "filter" : {
+                "destination_ip" : host_ip_addr
+                "event_type" : log_to_search
+                "time_period": current_time - back_time
+            }
+        }
+    }
+}  
+response = requests.get(uri, data=query)
+results = json.loads(response.text)
+
 # GO BACK TO STEP 1, repeat until the user exits
+
+print_menu
 
