@@ -63,6 +63,26 @@ show a summary of the connections to host_ip_addr over the time period time_wind
 # TIME PERIOD: current_time - time_window
 # GROUP BY: destination_port - summarize views
 
+""" """
+uri = "elasticsearch,9200"
+{
+    "query": {
+        "filtered" : {
+            "query" : {
+                "match_all" : {}
+            },
+            "filter" : {
+                "destination_ip" : host_ip_addr
+                "event_type" : log_to_search
+                "time_period": current_time - back_time
+            }
+        }
+    }
+}  
+response = requests.get(uri, data=query)
+results = json.loads(response.text)
+
+
 '''
 allow user to choose a destination port of interest, now execute another query, this time show all SOURCE_IP addresses with timestamps and size of the session (just focused on TCP now)
 '''
