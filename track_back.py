@@ -33,7 +33,7 @@ import datetime
 #Define Argparse,
 parser = argparse.ArgumentParser()
 
-parser.add_argument('-h', action='store', dest='host_ip_addr', help='Specify the host to search for')
+parser.add_argument('--host', action='store', dest='host_ip_addr', help='Specify the host to search for')
 parser.add_argument('-t', action='store', dest='back_time', help='Specify how back back from current_time you want to search')
 parser.add_argument('-c', action='store', dest='current_time', help='Specify a current_time to start searching from')
 
@@ -82,23 +82,22 @@ show a summary of the connections to host_ip_addr over the time period time_wind
 
 """ """
 uri = "elasticsearch,9200"
-{
+query = json.dumps({
     "query": {
         "filtered" : {
             "query" : {
                 "match_all" : {}
             },
             "filter" : {
-                "destination_ip" : host_ip_addr
-                "event_type" : log_to_search
+                "destination_ip": host_ip_addr,
+                "event_type": log_to_search,
                 "time_period": current_time - back_time
             }
         }
     }
-}  
+})
 response = requests.get(uri, data=query)
 results = json.loads(response.text)
-
 
 '''
 allow user to choose a destination port of interest, now execute another query, this time show all SOURCE_IP addresses with timestamps and size of the session (just focused on TCP now)
@@ -120,21 +119,21 @@ port_of_interest = input('Input a port to search')
 
 """ """
 uri = "elasticsearch,9200"
-{
+query = json.dumps({
     "query": {
         "filtered" : {
             "query" : {
                 "match_all" : {}
             },
             "filter" : {
-                "destination_ip" : host_ip_addr
-                "destination_port": port_of_interest
-                "event_type" : log_to_search
+                "destination_ip": host_ip_addr,
+                "destination_port": port_of_interest,
+                "event_type": log_to_search,
                 "time_period": current_time - back_time
             }
         }
     }
-}  
+})
 response = requests.get(uri, data=query)
 results = json.loads(response.text)
 
@@ -149,24 +148,23 @@ session = input('Input an ip address to track')
 
 """ """
 uri = "elasticsearch,9200"
-{
+query = json.dumps({
     "query": {
         "filtered" : {
             "query" : {
                 "match_all" : {}
             },
             "filter" : {
-                "destination_ip" : host_ip_addr
-                "event_type" : log_to_search
+                "destination_ip" : host_ip_addr,
+                "event_type": log_to_search,
                 "time_period": current_time - back_time
             }
         }
     }
-}  
+})
 response = requests.get(uri, data=query)
 results = json.loads(response.text)
 
 # GO BACK TO STEP 1, repeat until the user exits
 
-print_menu
 
