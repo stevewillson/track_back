@@ -5,23 +5,39 @@
 # track_back.py
 # Steve Willson
 #  9/25/18
-# track_back.py is a python script that searches
-# elasticsearch. Provide an IP address and time window
-# it will initially search back from current time
-# unless a 'current_time' is set.
-#
 #
 ##################################################
 
 '''
-It will search back from the current time unless another 'end_time'
-is set. 
-First, it will list by port all of the connections to this particular IP
-address over the time_window
+track_back.py is a python script that searches elasticsearch. 
+The goal is to track an ip address back to a source
 
-time_window = current_time - back_time
+Provide an IP address and time window it will initially search back from current time unless a 'current_time' is set.
 
-current_time can also be provided to the file
+track_back.py operates in 3 steps
+
+step 1
+take a destination_ip and search elasticsearch for the following fields:
+return
+* destination_port
+* count the number of connections to that port over the time period
+
+step 2
+allow the user to select the port of interest
+search elasticsearch for that destination_port and the destination_ip over the time period
+return
+* source_ip
+* amount of data
+* time connection occurred
+* duration of time
+
+step 3
+allow the user to select a source_ip, this will become the next destination_ip
+
+go to step 1 and repeat the process
+build a list of the connections with the following information
+
+source_ip: SRC_IP | dest_ip | dest_port | timestamp | session_size
 
 '''
 
@@ -29,6 +45,8 @@ current_time can also be provided to the file
 import argparse
 
 import datetime
+
+import requests
 
 #Define Argparse,
 parser = argparse.ArgumentParser()
@@ -60,10 +78,11 @@ current_time = datetime.datetime.now()
 
 #split the time on days, hours, minutes
 
-
+''' TODO
 back_time = timedelta()
 
 time_window = current_time - back_time
+'''
 
 # specify the elasticsearch log file to search
 
@@ -115,7 +134,7 @@ port_of_interest = input('Input a port to search')
 # DESTINATION_IP: host_ip_addr
 # DESTINATION_PORT: USER_CHOICE
 # TIME PERIOD: current_time - time_window
-# Display by: SOURCE_IP, TIME, SESSION_SIZE, SESSION_LENGTH?
+# Display by: SOURCE_IP, TIME, SESSION_SIZE, SESSION_DURATION
 
 """ """
 uri = "elasticsearch,9200"
@@ -165,6 +184,16 @@ query = json.dumps({
 response = requests.get(uri, data=query)
 results = json.loads(response.text)
 
-# GO BACK TO STEP 1, repeat until the user exits
+'''
+APPEND THIS DATA TO THE MASTER 'track_back' list
 
+track_back list
+source_ip | dest_ip | dest_port | timestamp | session_size
+source_ip | dest_ip | dest_port | timestamp | session_size
+source_ip | dest_ip | dest_port | timestamp | session_size
+source_ip | dest_ip | dest_port | timestamp | session_size
+'''
+
+
+# GO BACK TO STEP 1, repeat until the user exits
 
