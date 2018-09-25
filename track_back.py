@@ -100,21 +100,19 @@ show a summary of the connections to host_ip_addr over the time period time_wind
 # GROUP BY: destination_port -> summarize views
 
 """ """
-uri = "elasticsearch,9200"
+uri = "http://elasticsearch:9200/*:logstash-*/_search""
 query = json.dumps({
     "query": {
-        "filtered" : {
-            "query" : {
-                "match_all" : {}
-            },
-            "filter" : {
-                "destination_ip": host_ip_addr,
-                "event_type": log_to_search,
-                "time_period": current_time - back_time
+        "bool": {
+            "must": [
+                { "term": {"destination_ip": host_ip_addr}}
+            ],
+            "filter" : [
+                { "range": {"@timestamp": { "gte": "now-3h/h" }}}
             }
         }
     }
-})
+)
 response = requests.get(uri, data=query)
 results = json.loads(response.text)
 
